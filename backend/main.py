@@ -486,6 +486,28 @@ async def get_favorites():
         }
 
 
+@app.get("/api/debug-download")
+async def debug_download(url: str = Query(..., description="Test URL")):
+    """Debug indirme testi"""
+    import aiohttp
+    
+    headers = {
+        "User-Agent": "WW2ImageArchive/1.0 (https://ww2-archive.onrender.com; contact@example.com)",
+        "Referer": "https://commons.wikimedia.org/"
+    }
+    
+    try:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                return {
+                    "status": response.status,
+                    "headers": dict(response.headers),
+                    "url": url
+                }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # Uygulamayı çalıştır
 if __name__ == "__main__":
     import uvicorn
