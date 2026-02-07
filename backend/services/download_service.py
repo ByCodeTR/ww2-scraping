@@ -35,7 +35,7 @@ class DownloadService:
         if self.session is None or self.session.closed:
             self.session = aiohttp.ClientSession(
                 headers={
-                    "User-Agent": "WW2ImageArchive/1.0 (https://ww2-archive.onrender.com; contact@example.com)",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                     "Referer": "https://commons.wikimedia.org/"
                 },
                 timeout=aiohttp.ClientTimeout(total=60)
