@@ -66,8 +66,6 @@ class DownloadService:
         Returns:
             İndirme sonucu
         """
-        session = await self._get_session()
-        
         try:
             # Dosya adını belirle
             if not filename:
@@ -89,39 +87,52 @@ class DownloadService:
                     "already_exists": True
                 }
             
-            # İndirmeye başla
-            async with session.get(url) as response:
-                if response.status != 200:
+            # Her indirme için yeni session oluştur - headers ile
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                "Referer": "https://commons.wikimedia.org/",
+            }
+            
+            timeout = aiohttp.ClientTimeout(total=120)
+            
+            async with aiohttp.ClientSession(headers=headers, timeout=timeout) as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        return {
+                            "success": False,
+                            "error": f"HTTP Error: {response.status}",
+                            "url": url
+                        }
+                    
+                    # Dosya boyutunu al
+                    total_size = int(response.headers.get('content-length', 0))
+                    downloaded = 0
+                    
+                    # Dosyaya yaz
+                    with open(file_path, 'wb') as f:
+                        async for chunk in response.content.iter_chunked(8192):
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            
+                            # İlerleme bildirimi
+                            if progress_callback and total_size > 0:
+                                progress = int((downloaded / total_size) * 100)
+                                progress_callback(progress)
+                    
+                    # Dosya boyutunu al
+                    file_size = os.path.getsize(file_path)
+                    
                     return {
-                        "success": False,
-                        "error": f"HTTP Error: {response.status}"
+                        "success": True,
+                        "file_path": file_path,
+                        "filename": filename,
+                        "file_size": file_size,
+                        "already_exists": False
                     }
-                
-                # Dosya boyutunu al
-                total_size = int(response.headers.get('content-length', 0))
-                downloaded = 0
-                
-                # Dosyaya yaz
-                with open(file_path, 'wb') as f:
-                    async for chunk in response.content.iter_chunked(8192):
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        
-                        # İlerleme bildirimi
-                        if progress_callback and total_size > 0:
-                            progress = int((downloaded / total_size) * 100)
-                            progress_callback(progress)
-                
-                # Dosya boyutunu al
-                file_size = os.path.getsize(file_path)
-                
-                return {
-                    "success": True,
-                    "file_path": file_path,
-                    "filename": filename,
-                    "file_size": file_size,
-                    "already_exists": False
-                }
                 
         except Exception as e:
             return {
