@@ -216,7 +216,7 @@ class WikimediaScraper:
         if self.session is None or self.session.closed:
             self.session = aiohttp.ClientSession(
                 headers={
-                    "User-Agent": "WW2ImageArchive/1.0 (Educational Project)"
+                    "User-Agent": "WW2ImageArchive/1.0 (https://ww2-archive.onrender.com; contact@example.com)"
                 }
             )
         return self.session
@@ -387,8 +387,8 @@ class WikimediaScraper:
                         
                         info = page_data["imageinfo"][0]
                         
-                        # Minimum genişlik düşürüldü - 600px
-                        if info.get("width", 0) < 600:
+                        # Minimum genişlik düşürüldü - 300px
+                        if info.get("width", 0) < 300:
                             continue
                         
                         mime = info.get("mime", "")
