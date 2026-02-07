@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW2 Görsel Arşivi | İkinci Dünya Savaşı Görselleri</title>
+    <meta name="description"
+        content="İkinci Dünya Savaşı görselleri için kapsamlı arşiv. Tanklar, uçaklar, gemiler ve daha fazlası.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <p class="loading-text">Yükleniyor...</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🎖️</span>
+                    <div class="logo-text">
+                        <h1>WW2 Arşivi</h1>
+                        <span class="logo-subtitle">Görsel Koleksiyonu</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arama -->
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Görsel ara..." autocomplete="off">
+                    <button class="search-clear hidden" id="searchClear">✕</button>
+                </div>
+            </div>
+
+            <!-- Kategoriler -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Kategoriler</h3>
+                    <ul class="category-list" id="categoryList">
+                        <!-- Kategoriler JavaScript ile yüklenecek -->
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">📹 Videolar</h3>
+                    <ul class="category-list">
+                        <li class="category-item" data-view="videos" data-query="tank battle">
+                            <span class="category-icon">🎬</span>
+                            <span class="category-name">Tank Savaşları</span>
+                        </li>
+                        <li class="category-item" data-view="videos" data-query="aircraft combat">
+                            <span class="category-icon">✈️</span>
+                            <span class="category-name">Hava Savaşları</span>
+                        </li>
+                        <li class="category-item" data-view="videos" data-query="d-day normandy">
+                            <span class="category-icon">🏖️</span>
+                            <span class="category-name">D-Day Çıkarması</span>
+                        </li>
+                        <li class="category-item" data-view="videos" data-query="war documentary">
+                            <span class="category-icon">🎥</span>
+                            <span class="category-name">Belgeseller</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Koleksiyonum</h3>
+                    <ul class="category-list">
+                        <li class="category-item" data-view="downloaded">
+                            <span class="category-icon">📁</span>
+                            <span class="category-name">İndirilenler</span>
+                            <span class="category-count hidden" id="downloadedCount"></span>
+                        </li>
+                        <li class="category-item" data-view="favorites">
+                            <span class="category-icon">⭐</span>
+                            <span class="category-name">Favoriler</span>
+                            <span class="category-count hidden" id="favoritesCount"></span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- İstatistikler -->
+            <div class="sidebar-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalImages">0</span>
+                    <span class="stat-label">Toplam Görsel</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalSize">0 MB</span>
+                    <span class="stat-label">Toplam Boyut</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h2 class="page-title" id="pageTitle">Aramaya Başla</h2>
+                    <p class="page-subtitle" id="pageSubtitle">WW2 görselleri arayın veya kategorilere göz atın</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="refreshBtn" title="Yenile">
+                        <span class="btn-icon">🔄</span>
+                    </button>
+                    <button class="btn btn-primary" id="downloadSelectedBtn" disabled>
+                        <span class="btn-icon">⬇️</span>
+                        <span class="btn-text">Seçilenleri İndir</span>
+                        <span class="btn-badge hidden" id="selectedCount">0</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label class="filter-label">Sıralama:</label>
+                    <select class="filter-select" id="sortSelect">
+                        <option value="relevance">Alakalı</option>
+                        <option value="size">Boyut (Büyük)</option>
+                        <option value="date">Tarih (Yeni)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Min. Genişlik:</label>
+                    <select class="filter-select" id="widthSelect">
+                        <option value="800">800px (HD)</option>
+                        <option value="1200">1200px (Full HD)</option>
+                        <option value="1920">1920px (2K)</option>
+                        <option value="400">400px (Tümü)</option>
+                    </select>
+                </div>
+                <div class="filter-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="selectAllCheckbox">
+                        <span class="checkbox-custom"></span>
+                        <span>Tümünü Seç</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Search Tabs -->
+            <div class="search-tabs hidden" id="searchTabs">
+                <button class="search-tab active" data-tab="images">
+                    🖼️ Görseller <span class="tab-count" id="tabImageCount">0</span>
+                </button>
+                <button class="search-tab" data-tab="videos">
+                    🎬 Videolar <span class="tab-count" id="tabVideoCount">0</span>
+                </button>
+            </div>
+
+            <!-- Image Grid -->
+            <div class="image-grid" id="imageGrid">
+                <!-- Başlangıç durumu -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🖼️</div>
+                    <h3>Aramaya Başlayın</h3>
+                    <p>Arama yapın veya soldaki kategorilerden birini seçin</p>
+                    <div class="quick-searches">
+                        <span class="quick-search-label">Hızlı Arama:</span>
+                        <button class="quick-search-btn" data-query="tank">Tanklar</button>
+                        <button class="quick-search-btn" data-query="aircraft">Uçaklar</button>
+                        <button class="quick-search-btn" data-query="battleship">Gemiler</button>
+                        <button class="quick-search-btn" data-query="D-Day">D-Day</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More -->
+            <div class="load-more-container hidden" id="loadMoreContainer">
+                <button class="btn btn-secondary btn-large" id="loadMoreBtn">
+                    <span class="btn-icon">➕</span>
+                    <span class="btn-text">Daha Fazla Yükle</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Detail Modal -->
+    <div class="modal hidden" id="imageModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-body">
+                <div class="modal-image-container">
+                    <img src="" alt="" id="modalImage" class="modal-image">
+                </div>
+                <div class="modal-info">
+                    <h3 class="modal-title" id="modalTitle"></h3>
+                    <p class="modal-description" id="modalDescription"></p>
+
+                    <div class="modal-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Boyut:</span>
+                            <span class="meta-value" id="modalSize"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Çözünürlük:</span>
+                            <span class="meta-value" id="modalResolution"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Kaynak:</span>
+                            <span class="meta-value" id="modalSource"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Lisans:</span>
+                            <span class="meta-value" id="modalLicense"></span>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn btn-primary btn-large" id="modalDownloadBtn">
+                            <span class="btn-icon">⬇️</span>
+                            <span class="btn-text">İndir</span>
+                        </button>
+                        <button class="btn btn-secondary" id="modalFavoriteBtn">
+                            <span class="btn-icon">⭐</span>
+                            <span class="btn-text">Favorilere Ekle</span>
+                        </button>
+                        <a href="" target="_blank" class="btn btn-ghost" id="modalSourceLink">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">Kaynağa Git</span>
+                        </a>
+                    </div>
+
+                    <div class="modal-category">
+                        <label class="modal-category-label">Kategori Seç:</label>
+                        <select class="filter-select" id="modalCategorySelect">
+                            <!-- Kategoriler JS ile yüklenecek -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Progress Modal -->
+    <div class="modal hidden" id="downloadModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-small">
+            <div class="download-progress">
+                <div class="download-icon">⬇️</div>
+                <h3 class="download-title">İndiriliyor...</h3>
+                <p class="download-status" id="downloadStatus">Hazırlanıyor...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="download-count" id="downloadCount">0 / 0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/env.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
